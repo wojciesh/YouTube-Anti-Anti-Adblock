@@ -11,8 +11,7 @@ This script removes the popup and resumes the video.
 
 1. Go to `chrome://extensions/`
 2. Enable `Developer mode`
-3. Click `Load unpacked extension...`
-4. Select zip file with the extension
+3. Drag'n'drop zip file with the Extension to the page
 
 ## Usage
 
