@@ -46,23 +46,26 @@ function removePopup(popupContainer) {
   log('Removed popup container');
 }
 
-// Try to resume video in increasing intervals until it is resumed or limit is reached.
-async function tryToResumeVideo(tryIndex = 0) {
-  const video = await resumeVideo();
-  if (!video || video.paused) {
-    const intervals = [10, 100, 200, 300, 400, 500];
-    let intervalIndex = tryIndex || 0;
-    log(`Video is still paused, trying again in ${intervals[intervalIndex]}ms`);
-    
-    setTimeout(async () => {
-      const video = document.querySelector('video');
-      if (!video || video.paused) {
-        tryToResumeVideo(intervalIndex + 1);
-      } else {
-        log('Video already resumed');
-      }
-    }, intervals[intervalIndex]);
-  }
+async function tryToResumeVideo() {
+  await resumeVideo();  // try to resume video immediately
+  // Every 50ms until 500ms check if video is paused and try to resume it
+  let loops = 0;
+  const interval = 50;
+  const timer = setInterval(async () => {
+    log(`Is video paused? (${++loops})`);
+    const video = document.querySelector('video');
+    if (!video) {
+      log('No video found!');
+    } else if (video.paused) {
+      log(`Video is paused, trying resuming again...`);
+      await resumeVideo();
+    } else {
+      log('Video is not paused');
+    }
+    if (loops >= 10) {
+      clearInterval(timer);
+    }
+  }, interval);
 
   async function resumeVideo() {
     const video = document.querySelector('video');
