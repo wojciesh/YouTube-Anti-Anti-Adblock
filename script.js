@@ -1,5 +1,5 @@
 // Name: YouTube Anti Anti-Adblock
-// Version: 0.9
+// Version: 0.9.1
 // Author: Wojciech Warpechowski (https://github.com/wojciesh)
 // Source: https://github.com/wojciesh/YouTube-Anti-Anti-Adblock
 // License: MIT
