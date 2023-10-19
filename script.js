@@ -50,7 +50,7 @@ function removePopup(popupContainer) {
 async function tryToResumeVideo(tryIndex = 0) {
   const video = await resumeVideo();
   if (!video || video.paused) {
-    const intervals = [1, 10, 100, 200, 300, 400, 500];
+    const intervals = [10, 100, 200, 300, 400, 500];
     let intervalIndex = tryIndex || 0;
     log(`Video is still paused, trying again in ${intervals[intervalIndex]}ms`);
     
