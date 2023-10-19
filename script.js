@@ -16,12 +16,13 @@ if (!doc) throw new Error('Document not found');
 
 // Set up a MutationObserver to detect changes
 const observer = new MutationObserver(() => {
-  // detect popup container
+  // detect visible popup container
   const popupContainer = doc.querySelector('ytd-popup-container');
   if (popupContainer && popupContainer.style.display !== 'none') {
     if (isAdblockPopup(popupContainer)) {
       log('Adblock popup found, removing it');
-      removePopupAndPlayVideo(popupContainer);  
+      removePopup(popupContainer);
+      tryToResumeVideo();
     } else {
       log('Popup found, but it is not Adblock popup');
     }
@@ -40,17 +41,46 @@ function isAdblockPopup(popupContainer) {
           !!(popupContainer.querySelector('ytd-enforcement-message-view-model'));
 }
 
-function removePopupAndPlayVideo(popupContainer) {
+function removePopup(popupContainer) {
   popupContainer.remove();
   log('Removed popup container');
+}
 
-  const video = document.querySelector('video');
-  if (video?.paused) {
-    video.play();
-    log('Video resumed');
-  } else {
-    log('No paused video found');
+// Try to resume video in increasing intervals until it is resumed or limit is reached.
+async function tryToResumeVideo(tryIndex = 0) {
+  const video = await resumeVideo();
+  if (!video || video.paused) {
+    const intervals = [1, 10, 100, 200, 300, 400, 500];
+    let intervalIndex = tryIndex || 0;
+    log(`Video is still paused, trying again in ${intervals[intervalIndex]}ms`);
+    
+    setTimeout(async () => {
+      const video = document.querySelector('video');
+      if (!video || video.paused) {
+        tryToResumeVideo(intervalIndex + 1);
+      } else {
+        log('Video already resumed');
+      }
+    }, intervals[intervalIndex]);
   }
+
+  async function resumeVideo() {
+    const video = document.querySelector('video');
+    try {
+      if (video?.paused) {
+        await video.play();
+        log('Video resumed');
+        return video;
+      } else {
+        log('No paused video found');
+      }
+    } catch (err) {
+      log('Error resuming video');
+      log(err.message);
+      console.error(err);
+    }
+    return null;
+  }  
 }
 
 function log(message) {
